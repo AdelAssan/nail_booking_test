@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Онлайн-запись — Студия маникюра</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <style>
+    /* ── Токены ── */
+    :root {
+      --burg:       #7B1C37;
+      --burg-mid:   #9E2D4B;
+      --burg-light: #F5EAEe;
+      --beige:      #F4ECD8;
+      --beige-dark: #E8D9BC;
+      --beige-card: #FBF7F0;
+      --text:       #1C1209;
+      --text-muted: #7A6A55;
+      --radius-sm:  8px;
+      --radius-md:  12px;
+    }
+
+    /* ── Сброс и база ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--beige);
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Обёртка ── */
+    .bk-wrap {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* ── Шапка ── */
+    .bk-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .bk-logo {
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--burg);
+      font-weight: 500;
+    }
+
+    /* ── Карточка шага ── */
+    .bk-card {
+      background: var(--beige-card);
+      border: 1.5px solid var(--beige-dark);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+    }
+
+    /* ── Прогресс ── */
+    .bk-progress {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1.25rem;
+    }
+    .bk-dot {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--beige-dark);
+      transition: background 0.3s;
+    }
+    .bk-dot.active { background: var(--burg); }
+
+    /* ── Метка шага ── */
+    .bk-step-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ── Заголовок ── */
+    .bk-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+    }
+
+    /* ── Кнопка «Назад» ── */
+    .bk-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 1rem;
+    }
+    .bk-back:hover { color: var(--burg); }
+
+    /* ── Мастера ── */
+    .bk-master-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+    .bk-master-card {
+      background: white;
+      border: 1.5px solid var(--beige-dark);
+      border-radius: var(--radius-md);
+      padding: 14px 8px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .bk-master-card:hover  { border-color: var(--burg-mid); }
+    .bk-master-card.active { border-color: var(--burg); background: var(--burg-light); }
+    .bk-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--beige-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--burg);
+      margin: 0 auto 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .bk-master-card.active .bk-avatar { background: var(--burg); color: white; }
+    .bk-master-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .bk-master-spec { font-size: 11px; color: var(--text-muted); margin-top: 3px; line-height: 1.3; }
+
+    /* ── Календарь ── */
+    .bk-cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .bk-cal-title { font-size: 15px; font-weight: 500; color: var(--text); }
+    .bk-cal-nav {
+      width: 30px;
+      height: 30px;
+      border: 1.5px solid var(--beige-dark);
+      border-radius: 6px;
+      background: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s;
+    }
+    .bk-cal-nav:hover { border-color: var(--burg); color: var(--burg); }
+    .bk-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      margin-bottom: 1.5rem;
+    }
+    .bk-cal-wday {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding-bottom: 6px;
+    }
+    .bk-cal-day {
+      text-align: center;
+      padding: 8px 2px;
+      font-size: 13px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.15s, color 0.15s;
+    }
+    .bk-cal-day.empty   { cursor: default; }
+    .bk-cal-day.past    { color: var(--text-muted); opacity: 0.4; cursor: default; }
+    .bk-cal-day.off     { color: var(--text-muted); opacity: 0.3; cursor: default; }
+    .bk-cal-day.avail:hover { background: var(--beige-dark); }
+    .bk-cal-day.today   { font-weight: 600; color: var(--burg); }
+    .bk-cal-day.active  { background: var(--burg) !important; color: white !important; font-weight: 600; }
+
+    /* ── Слоты времени ── */
+    .bk-time-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 1.5rem;
+    }
+    .bk-slot {
+      border: 1.5px solid var(--beige-dark);
+      border-radius: var(--radius-sm);
+      padding: 10px 4px;
+      text-align: center;
+      font-size: 13px;
+      cursor: pointer;
+      background: white;
+      color: var(--text);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .bk-slot:hover          { border-color: var(--burg-mid); }
+    .bk-slot.active         { background: var(--burg); border-color: var(--burg); color: white; font-weight: 600; }
+    .bk-slot.taken          { opacity: 0.35; cursor: default; }
+    .bk-slot-note           { display: block; font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .bk-slot.active .bk-slot-note { color: rgba(255,255,255,0.7); }
+
+    /* ── Форма ── */
+    .bk-field { margin-bottom: 14px; }
+    .bk-label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+    .bk-input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid var(--beige-dark);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      background: white;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .bk-input:focus { border-color: var(--burg); }
+    .bk-input::placeholder { color: #BBA98E; }
+    .bk-input.error { border-color: #C0392B; }
+    .bk-field-error {
+      display: none;
+      font-size: 11px;
+      color: #C0392B;
+      margin-top: 5px;
+    }
+    .bk-field-error.visible { display: block; }
+
+    /* ── Сводка ── */
+    .bk-summary {
+      background: white;
+      border: 1.5px solid var(--beige-dark);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+    }
+    .bk-summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 14px;
+      font-size: 13px;
+      border-bottom: 0.5px solid var(--beige-dark);
+    }
+    .bk-summary-row:last-child { border-bottom: none; }
+    .bk-summary-label { color: var(--text-muted); }
+    .bk-summary-val   { font-weight: 500; color: var(--text); }
+
+    /* ── Основная кнопка ── */
+    .bk-btn {
+      width: 100%;
+      padding: 13px;
+      background: var(--burg);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+    }
+    .bk-btn:hover:not(:disabled) { background: var(--burg-mid); }
+    .bk-btn:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── Успех ── */
+    .bk-success {
+      text-align: center;
+      padding: 1.5rem 0;
+    }
+    .bk-success-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--burg-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+    .bk-success-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .bk-success-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .bk-remind {
+      background: var(--beige);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: left;
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    /* ── Адаптив ── */
+    @media (max-width: 380px) {
+      .bk-master-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .bk-time-grid   { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bk-wrap">
+  <div class="bk-header">
+    <div class="bk-logo">Студия маникюра</div>
+  </div>
+  <div class="bk-card" id="app"></div>
+</div>
+
+<script>
+  /* ── Данные ── */
+  const MASTERS = [
+    { id: 1, init: 'АС', name: 'Айгерим', spec: 'маникюр + педикюр' },
+    { id: 2, init: 'ДК', name: 'Дана',    spec: 'гель, наращивание' },
+    { id: 3, init: 'МТ', name: 'Мира',    spec: 'покрытие, дизайн'  },
+  ];
+  const WDAYS  = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь',
+                  'Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+  const ALL_SLOTS = ['09:00','10:30','12:00','13:30','15:00','16:30'];
+  const TAKEN_SLOTS = ['10:30','13:30'];   // занятые слоты
+  const OFF_WDAYS   = [0];                          // 0 = воскресенье
+
+  /* ── Состояние ── */
+  const now = new Date();
+  const st = {
+    step:     1,
+    master:   null,
+    date:     null,   // { d, m, y }
+    time:     null,
+    calYear:  now.getFullYear(),
+    calMonth: now.getMonth(),
+  };
+
+  /* ── Хелперы ── */
+  const $ = id => document.getElementById(id);
+  const daysInMonth  = (y, m) => new Date(y, m + 1, 0).getDate();
+  const firstWeekday = (y, m) => { const d = new Date(y, m, 1).getDay(); return d === 0 ? 6 : d - 1; };
+
+  /* ── Прогресс-точки ── */
+  function dots() {
+    return `<div class="bk-progress">
+      ${[1,2,3,4].map(i => `<div class="bk-dot ${st.step >= i ? 'active' : ''}"></div>`).join('')}
+    </div>`;
+  }
+
+  /* ── Кнопка «Назад» ── */
+  function backBtn(to) {
+    return `<button class="bk-back" onclick="goStep(${to})">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="flex-shrink:0">
+        <path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Назад
+    </button>`;
+  }
+
+  /* ════════════════════════════════
+     ШАГ 1 — Выбор мастера
+  ════════════════════════════════ */
+  function renderStep1() {
+    const cards = MASTERS.map(m => `
+      <div class="bk-master-card ${st.master === m.id ? 'active' : ''}"
+           onclick="selectMaster(${m.id})">
+        <div class="bk-avatar">${m.init}</div>
+        <div class="bk-master-name">${m.name}</div>
+        <div class="bk-master-spec">${m.spec}</div>
+      </div>
+    `).join('');
+
+    return `
+      ${dots()}
+      <div class="bk-step-label">Шаг 1 из 4 · Мастер</div>
+      <div class="bk-title">К кому записываетесь?</div>
+      <div class="bk-master-grid">${cards}</div>
+      <button class="bk-btn" ${!st.master ? 'disabled' : ''} onclick="goStep(2)">Далее</button>
+    `;
+  }
+
+  /* ════════════════════════════════
+     ШАГ 2 — Выбор даты
+  ════════════════════════════════ */
+  function renderStep2() {
+    const y = st.calYear, m = st.calMonth;
+    const total = daysInMonth(y, m);
+    const start = firstWeekday(y, m);
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    let cells = '<div class="bk-cal-day empty"></div>'.repeat(start);
+
+    for (let d = 1; d <= total; d++) {
+      const date = new Date(y, m, d);
+      const dow  = date.getDay() === 0 ? 6 : date.getDay() - 1; // пн=0
+      const past = date < today;
+      const off  = OFF_WDAYS.includes(date.getDay());
+      const sel  = st.date && st.date.d === d && st.date.m === m && st.date.y === y;
+      const isToday = d === now.getDate() && m === now.getMonth() && y === now.getFullYear();
+
+      let cls = 'bk-cal-day';
+      if (past)      cls += ' past';
+      else if (off)  cls += ' off';
+      else {
+        cls += ' avail';
+        if (sel)     cls += ' active';
+        else if (isToday) cls += ' today';
+      }
+      const click = (!past && !off) ? `onclick="selectDate(${d},${m},${y})"` : '';
+      cells += `<div class="${cls}" ${click}>${d}</div>`;
+    }
+
+    return `
+      ${dots()}
+      ${backBtn(1)}
+      <div class="bk-step-label">Шаг 2 из 4 · Дата</div>
+      <div class="bk-title">Когда удобно?</div>
+      <div class="bk-cal-header">
+        <button class="bk-cal-nav" onclick="prevMonth()">‹</button>
+        <span class="bk-cal-title">${MONTHS[m]} ${y}</span>
+        <button class="bk-cal-nav" onclick="nextMonth()">›</button>
+      </div>
+      <div class="bk-cal-grid">
+        ${WDAYS.map(w => `<div class="bk-cal-wday">${w}</div>`).join('')}
+        ${cells}
+      </div>
+      <button class="bk-btn" ${!st.date ? 'disabled' : ''} onclick="goStep(3)">Далее</button>
+    `;
+  }
+
+  /* ════════════════════════════════
+     ШАГ 3 — Выбор времени
+  ════════════════════════════════ */
+  function renderStep3() {
+    const slots = ALL_SLOTS.map(t => {
+      const taken = TAKEN_SLOTS.includes(t);
+      const sel   = st.time === t;
+      return `
+        <div class="bk-slot ${taken ? 'taken' : sel ? 'active' : ''}"
+             ${!taken ? `onclick="selectTime('${t}')"` : ''}>
+          ${t}
+          ${taken ? '<span class="bk-slot-note">занято</span>' : ''}
+        </div>
+      `;
+    }).join('');
+
+    return `
+      ${dots()}
+      ${backBtn(2)}
+      <div class="bk-step-label">Шаг 3 из 4 · Время</div>
+      <div class="bk-title">Выберите время</div>
+      <div class="bk-time-grid">${slots}</div>
+      <button class="bk-btn" ${!st.time ? 'disabled' : ''} onclick="goStep(4)">Далее</button>
+    `;
+  }
+
+  /* ════════════════════════════════
+     ШАГ 4 — Данные клиента
+  ════════════════════════════════ */
+  function renderStep4() {
+    const m = MASTERS.find(x => x.id === st.master);
+    const dateStr = st.date
+      ? `${st.date.d} ${MONTHS[st.date.m]} ${st.date.y}`
+      : '';
+
+    return `
+      ${dots()}
+      ${backBtn(3)}
+      <div class="bk-step-label">Шаг 4 из 4 · Ваши данные</div>
+      <div class="bk-title">Почти готово!</div>
+      <div class="bk-summary">
+        <div class="bk-summary-row">
+          <span class="bk-summary-label">Мастер</span>
+          <span class="bk-summary-val">${m.name}</span>
+        </div>
+        <div class="bk-summary-row">
+          <span class="bk-summary-label">Дата</span>
+          <span class="bk-summary-val">${dateStr}</span>
+        </div>
+        <div class="bk-summary-row">
+          <span class="bk-summary-label">Время</span>
+          <span class="bk-summary-val">${st.time}</span>
+        </div>
+      </div>
+      <div class="bk-field">
+        <label class="bk-label" for="inp-name">Ваше имя</label>
+        <input class="bk-input" id="inp-name" placeholder="Айгерим" oninput="checkForm()" />
+      </div>
+      <div class="bk-field">
+        <label class="bk-label" for="inp-phone">Номер телефона</label>
+        <input class="bk-input" id="inp-phone" placeholder="+7 (___) ___ __ __"
+               inputmode="numeric" autocomplete="tel"
+               onkeydown="phoneKeydown(this,event)"
+               oninput="phoneMask(this)" onblur="phoneBlur(this)" onfocus="phoneFocus(this)" />
+        <div class="bk-field-error" id="phone-error">Введите полный номер — 10 цифр после +7</div>
+      </div>
+      <button class="bk-btn" id="submit-btn" disabled onclick="submit()">Записаться</button>
+    `;
+  }
+
+  /* ════════════════════════════════
+     Экран успеха
+  ════════════════════════════════ */
+  function renderSuccess() {
+    const m = MASTERS.find(x => x.id === st.master);
+    const dateStr = st.date ? `${st.date.d} ${MONTHS[st.date.m]}` : '';
+
+    return `
+      <div class="bk-success">
+        <div class="bk-success-icon" aria-hidden="true">
+          <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(20,20)">
+              <!-- 5 лепестков сакуры -->
+              <ellipse rx="5.5" ry="10" fill="#F2A7C3" transform="rotate(0)  translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="#F2A7C3" transform="rotate(72) translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="#F2A7C3" transform="rotate(144) translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="#F2A7C3" transform="rotate(216) translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="#F2A7C3" transform="rotate(288) translate(0,-8)"/>
+              <!-- Более тёмный контур лепестков -->
+              <ellipse rx="5.5" ry="10" fill="none" stroke="#E07FAA" stroke-width="0.6" transform="rotate(0)  translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="none" stroke="#E07FAA" stroke-width="0.6" transform="rotate(72) translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="none" stroke="#E07FAA" stroke-width="0.6" transform="rotate(144) translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="none" stroke="#E07FAA" stroke-width="0.6" transform="rotate(216) translate(0,-8)"/>
+              <ellipse rx="5.5" ry="10" fill="none" stroke="#E07FAA" stroke-width="0.6" transform="rotate(288) translate(0,-8)"/>
+              <!-- Сердцевина -->
+              <circle r="5" fill="#FFE0EE"/>
+              <circle r="5" fill="none" stroke="#E07FAA" stroke-width="0.8"/>
+              <!-- Тычинки -->
+              <line x1="0" y1="0" x2="0"    y2="-4"   stroke="#E07FAA" stroke-width="1" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="3.8"  y2="-1.2" stroke="#E07FAA" stroke-width="1" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="2.3"  y2="3.2"  stroke="#E07FAA" stroke-width="1" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="-2.3" y2="3.2"  stroke="#E07FAA" stroke-width="1" stroke-linecap="round"/>
+              <line x1="0" y1="0" x2="-3.8" y2="-1.2" stroke="#E07FAA" stroke-width="1" stroke-linecap="round"/>
+              <circle cx="0"    cy="-4"   r="1" fill="#F7C5D9"/>
+              <circle cx="3.8"  cy="-1.2" r="1" fill="#F7C5D9"/>
+              <circle cx="2.3"  cy="3.2"  r="1" fill="#F7C5D9"/>
+              <circle cx="-2.3" cy="3.2"  r="1" fill="#F7C5D9"/>
+              <circle cx="-3.8" cy="-1.2" r="1" fill="#F7C5D9"/>
+            </g>
+          </svg>
+        </div>
+        <div class="bk-success-title">Вы записаны!</div>
+        <div class="bk-success-sub">
+          Мастер <strong>${m.name}</strong> ждёт вас<br>
+          <strong>${dateStr} в ${st.time}</strong>
+        </div>
+        <div class="bk-remind">
+          📱 Напоминание придёт в WhatsApp за 24 часа и за 2 часа до визита.
+          Если планы изменятся — ссылка для отмены будет в сообщении.
+        </div>
+        <button class="bk-btn" onclick="restart()">Записаться ещё раз</button>
+      </div>
+    `;
+  }
+
+  /* ── Рендер ── */
+  function render() {
+    const map = { 1: renderStep1, 2: renderStep2, 3: renderStep3, 4: renderStep4, 5: renderSuccess };
+    $('app').innerHTML = (map[st.step] || renderSuccess)();
+  }
+
+  /* ── Обработчики ── */
+  function selectMaster(id) { st.master = id; render(); }
+  function selectDate(d, m, y) { st.date = { d, m, y }; render(); }
+  function selectTime(t) { st.time = t; render(); }
+
+  function goStep(n) { st.step = n; render(); }
+
+  function prevMonth() {
+    st.calMonth--;
+    if (st.calMonth < 0) { st.calMonth = 11; st.calYear--; }
+    render();
+  }
+  function nextMonth() {
+    st.calMonth++;
+    if (st.calMonth > 11) { st.calMonth = 0; st.calYear++; }
+    render();
+  }
+
+  /* ── Телефонная маска ── */
+
+  // Достать только 10 значащих цифр (без ведущей 7/8)
+  function phoneDigits(val) {
+    let d = val.replace(/\D/g, '');
+    if (d.startsWith('7') || d.startsWith('8')) d = d.slice(1);
+    return d.slice(0, 10);
+  }
+
+  // Форматировать 10 цифр → "+7 (XXX) XXX XX XX"
+  function phoneFormat(digits) {
+    if (!digits.length) return '';
+    let out = '+7 (' + digits.slice(0, 3);
+    if (digits.length >= 3) out += ') ' + digits.slice(3, 6);
+    if (digits.length >= 6) out += ' '  + digits.slice(6, 8);
+    if (digits.length >= 8) out += ' '  + digits.slice(8, 10);
+    return out;
+  }
+
+  // Сколько значащих цифр стоит левее позиции pos в отформатированной строке
+  function digitsBefore(val, pos) {
+    const d = val.slice(0, pos).replace(/\D/g, '');
+    return (d.startsWith('7') || d.startsWith('8')) ? d.length - 1 : d.length;
+  }
+
+  // Позиция курсора в отформатированной строке для n цифр
+  // Карта: +7 (d1 d2 d3) d4 d5 d6 _d7 d8 _d9 d10
+  //         0123 4  5  6  78 9 10 11 12 13 14 15 16 17
+  function cursorPos(n) {
+    if (n <= 0) return 4;
+    if (n <= 3) return 4 + n;
+    if (n <= 6) return 9 + (n - 3);
+    if (n <= 8) return 13 + (n - 6);
+    return 16 + (n - 8);
+  }
+
+  // Перехватываем Backspace и Delete — двигаем курсор сами
+  function phoneKeydown(el, e) {
+    if (e.key !== 'Backspace' && e.key !== 'Delete') return;
+    e.preventDefault();
+
+    const cur    = el.selectionStart;
+    const selEnd = el.selectionEnd;
+    let digits   = phoneDigits(el.value);
+    let dStart   = digitsBefore(el.value, cur);
+    let dEnd     = digitsBefore(el.value, selEnd);
+
+    if (cur === selEnd) {
+      // Нет выделения
+      if (e.key === 'Backspace' && dStart > 0) {
+        digits = digits.slice(0, dStart - 1) + digits.slice(dStart);
+        dStart--;
+      } else if (e.key === 'Delete' && dStart < digits.length) {
+        digits = digits.slice(0, dStart) + digits.slice(dStart + 1);
+      }
+    } else {
+      // Есть выделение — удаляем диапазон
+      digits = digits.slice(0, dStart) + digits.slice(dEnd);
+    }
+
+    el.value = phoneFormat(digits);
+    const np = Math.min(cursorPos(dStart), el.value.length);
+    el.setSelectionRange(np, np);
+
+    phoneHideError(el);
+    checkForm();
+  }
+
+  // Обычный ввод (вставка, автозаполнение, виртуальная клавиатура)
+  function phoneMask(el) {
+    const cur    = el.selectionStart;
+    const dBefore = digitsBefore(el.value, cur);
+
+    const digits = phoneDigits(el.value);
+    el.value = phoneFormat(digits);
+
+    const np = Math.min(cursorPos(dBefore), el.value.length);
+    el.setSelectionRange(np, np);
+
+    phoneHideError(el);
+    checkForm();
+  }
+
+  function phoneFocus(el) {
+    if (!el.value) {
+      el.value = '+7 (';
+      el.setSelectionRange(4, 4);
+    }
+  }
+
+  function phoneBlur(el) {
+    const digits = phoneDigits(el.value);
+    if (el.value && el.value !== '+7 (' && digits.length < 10) {
+      el.classList.add('error');
+      const err = $('phone-error');
+      if (err) err.classList.add('visible');
+    }
+    if (!el.value || el.value === '+7 (' || el.value === '+7 ') el.value = '';
+  }
+
+  function phoneHideError(el) {
+    el.classList.remove('error');
+    const err = $('phone-error');
+    if (err) err.classList.remove('visible');
+  }
+
+  function checkForm() {
+    const name   = $('inp-name')?.value.trim();
+    const phone  = $('inp-phone')?.value || '';
+    const digits = phone.replace(/\D/g, '').replace(/^[78]/, '');
+    const btn    = $('submit-btn');
+    if (btn) btn.disabled = !(name && name.length > 1 && digits.length === 10);
+  }
+
+  function submit() { st.step = 5; render(); }
+
+  function restart() {
+    st.step = 1; st.master = null; st.date = null; st.time = null;
+    st.calYear = now.getFullYear(); st.calMonth = now.getMonth();
+    render();
+  }
+
+  /* ── Старт ── */
+  render();
+</script>
+</body>
+</html>
